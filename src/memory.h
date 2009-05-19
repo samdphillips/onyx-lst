@@ -112,9 +112,12 @@ extern void exchangeObjects(struct object *, struct object *, uint);
 
 extern int isDynamicMemory(struct object *);
 
+#if 0
 #define gcalloc(sz) (((memoryPointer = WORDSDOWN(memoryPointer, (sz) + 2)) < \
 	memoryBase) ? gcollect(sz) : \
 	(SETSIZE(memoryPointer, (sz)), memoryPointer))
+#endif
+
 
 #ifndef gcalloc
 extern struct object *gcalloc(int);
