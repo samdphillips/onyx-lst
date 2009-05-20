@@ -5,8 +5,16 @@
 #include "memory.h"
 #include "globs.h"
 
-#define UNIMP fprintf(stderr,"Unimplemented\n"); exit(1);
+#define UNIMP fprintf(stderr,"%s: Unimplemented\n", __FUNCTION__); exit(1);
 
+/* since libgc:
+ *  1) is non-moving (I think)
+ *  2) is conservative
+ *
+ *  I don't think we need to be so strict about having a rootStack.  For now it
+ *  is easier to keep it because a large number of lines in interp.c would have
+ *  to be modified to remove it.
+ */
 /* FIXME: make dynamic sized */
 struct object *rootStack[ROOTSTACKLIMIT];
 int rootTop = 0;
