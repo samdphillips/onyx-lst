@@ -30,6 +30,7 @@ static struct object *staticRoots[STATICROOTLIMIT];
 static int staticRootTop = 0;
 
 #define ONYX_INIT_OT_SIZE 1024
+static uint32_t onyx_top_ote = ONYX_INIT_OT_SIZE;
 static uint32_t onyx_next_ote = 0;
 static struct object **onyx_object_table;
 
@@ -48,16 +49,72 @@ staticAllocate(int size)
     return gcalloc(size);
 }
 
+static void
+onyx_compact_object_table(void)
+{
+    uint32_t i, j, null_count, dest_size;
+    struct object **new_object_table;
+
+    null_count = 0;
+    for (i=0; i < onyx_top_ote; i++)
+    {
+        if (onyx_object_table[i] == NULL)
+            null_count++;
+    }
+
+    if (null_count < onyx_top_ote / 2)
+        dest_size = onyx_top_ote * 2;
+    else
+        dest_size = onyx_top_ote;
+
+    new_object_table = GC_MALLOC_ATOMIC(sizeof(struct object*) * dest_size);
+
+    j = 0;
+    for (i=0; i < onyx_top_ote; i++)
+    {
+        if (onyx_object_table[i] != NULL)
+        {
+            new_object_table[j] = onyx_object_table[i];
+            j++;
+        }
+    }
+
+    onyx_object_table = new_object_table;
+    onyx_next_ote = j;
+    onyx_top_ote = dest_size;
+}
+
+static void
+onyx_register_oop(struct object *object)
+{
+    if (onyx_next_ote >= onyx_top_ote)
+        onyx_compact_object_table();
+
+    onyx_object_table[onyx_next_ote] = object;
+    onyx_next_ote++;
+}
+
 struct object*
 gcalloc(int size)
 {
-    UNIMP
+    struct object *object;
+    object = GC_MALLOC((size + 2) * sizeof(void*));
+    SETSIZE(object, size);
+    onyx_register_oop(object);
+    return object;
 }
 
 struct object*
 gcialloc(int size)
 {
-    UNIMP
+    uint32_t real_size;
+    struct object *object;
+
+    real_size = (size + BytesPerWord - 1) / BytesPerWord;
+    object = gcalloc(real_size);
+    SETSIZE(object, size);
+    object->size |= FLAG_BIN;
+    return object;
 }
 
 struct object*
@@ -75,7 +132,7 @@ addStaticRoot(struct object **oop)
 int
 isDynamicMemory(struct object *oop)
 {
-    UNIMP
+    return 0;
 }
 
 /* FIXME: should dynamically allocate this and let it get freed up when
