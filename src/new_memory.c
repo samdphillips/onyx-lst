@@ -45,6 +45,8 @@ struct onyx_object_table
     struct object*              ote[0];
 };
 
+static void onyx_register_oop_in_table(struct object*, struct onyx_object_table*);
+
 struct onyx_object_table* object_table;
 GC_descr T_object_table;
 
@@ -81,69 +83,63 @@ staticAllocate(int size)
 }
 
 static void
-onyx_compact_object_table(void)
+onyx_promote_objects(struct onyx_object_table *table)
 {
-    uint32_t i, j, null_count, dest_size;
-    struct object **new_object_table;
+    uint32_t i;
 
-    /*fprintf(stderr, "[debug] compacting object table\n");*/
-    null_count = 0;
-    for (i=0; i < onyx_top_ote; i++)
+    if (table->next_table == NULL)
+        table->next_table = onyx_object_table_new(table->size);
+
+    for (i=0; i < table->size; i++)
     {
-        if (onyx_object_table[i] == NULL)
-            null_count++;
-    }
-
-    /*fprintf(stderr, "[debug] %d nulls found\n", null_count);*/
-    if (null_count < onyx_top_ote / 2)
-        dest_size = onyx_top_ote * 2;
-    else
-        dest_size = onyx_top_ote;
-
-    /*fprintf(stderr, "[debug] object table size: %d -> %d\n", onyx_top_ote, dest_size);*/
-    new_object_table = GC_MALLOC_ATOMIC(sizeof(struct object*) * dest_size);
-
-    j = 0;
-    for (i=0; i < onyx_top_ote; i++)
-    {
-        if (onyx_object_table[i] != NULL)
+        if (table->ote[i] != NULL)
         {
-            new_object_table[j] = onyx_object_table[i];
-            j++;
+            onyx_register_oop_in_table(table->ote[i], table->next_table);
+            table->ote[i] = NULL;
         }
     }
 
-    onyx_object_table = new_object_table;
-    onyx_next_ote = j;
-    onyx_top_ote = dest_size;
+    table->next_free = 0;
 }
 
 static void
 onyx_unregister_oop(struct object* object, void *trash)
 {
     uint32_t i;
+    struct onyx_object_table *cur_table;
 
-    for (i=0; i < onyx_next_ote; i++)
+    for (cur_table = object_table; cur_table != NULL; cur_table=cur_table->next_table)
     {
-        if (onyx_object_table[i] == object)
+        for (i=0; i < cur_table->next_free; i++)
         {
-            onyx_object_table[i] = NULL;
-            return;
+            if (cur_table->ote[i] == object)
+            {
+                cur_table->ote[i] = NULL;
+                return;
+            }
         }
     }
 }
 
 static void
-onyx_register_oop(struct object *object)
+onyx_register_oop_in_table(struct object *object, struct onyx_object_table *table)
 {
-    if (onyx_next_ote >= onyx_top_ote)
-        onyx_compact_object_table();
 
-    onyx_object_table[onyx_next_ote] = object;
-    onyx_next_ote++;
+    if (table->next_free >= table->size)
+        onyx_promote_objects(table);
+
+    table->ote[table->next_free] = object;
+    table->next_free++;
 
     GC_REGISTER_FINALIZER_NO_ORDER(object, onyx_unregister_oop, NULL, NULL, NULL);
 }
+
+static void
+onyx_register_oop(struct object *object)
+{
+    onyx_register_oop_in_table(object, object_table);
+}
+
 
 struct object*
 gcalloc(int size)
