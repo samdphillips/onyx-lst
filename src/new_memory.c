@@ -55,7 +55,7 @@ onyx_compact_object_table(void)
     uint32_t i, j, null_count, dest_size;
     struct object **new_object_table;
 
-    fprintf(stderr, "[debug] compacting object table\n");
+    /*fprintf(stderr, "[debug] compacting object table\n");*/
     null_count = 0;
     for (i=0; i < onyx_top_ote; i++)
     {
@@ -63,13 +63,13 @@ onyx_compact_object_table(void)
             null_count++;
     }
 
-    fprintf(stderr, "[debug] %d nulls found\n", null_count);
+    /*fprintf(stderr, "[debug] %d nulls found\n", null_count);*/
     if (null_count < onyx_top_ote / 2)
         dest_size = onyx_top_ote * 2;
     else
         dest_size = onyx_top_ote;
 
-    fprintf(stderr, "[debug] object table size: %d -> %d\n", onyx_top_ote, dest_size);
+    /*fprintf(stderr, "[debug] object table size: %d -> %d\n", onyx_top_ote, dest_size);*/
     new_object_table = GC_MALLOC_ATOMIC(sizeof(struct object*) * dest_size);
 
     j = 0;
