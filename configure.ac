@@ -5,7 +5,7 @@ AC_PREREQ(2.61)
 AC_INIT(onyx, [0.0.1], [sam@dasbistro.com])
 AM_INIT_AUTOMAKE(onyx, [0.0.1])
 AC_CONFIG_SRCDIR([config.h.in])
-AC_CONFIG_HEADER([config.h])
+AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
 AC_PROG_CC
