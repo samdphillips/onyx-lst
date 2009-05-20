@@ -1,5 +1,6 @@
 
 #include <gc.h>
+#include <gc_typed.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -30,16 +31,46 @@ static struct object *staticRoots[STATICROOTLIMIT];
 static int staticRootTop = 0;
 
 #define ONYX_INIT_OT_SIZE 1024
+/*
 static uint32_t onyx_top_ote = ONYX_INIT_OT_SIZE;
 static uint32_t onyx_next_ote = 0;
 static struct object **onyx_object_table;
+*/
+
+struct onyx_object_table
+{
+    struct onyx_object_table*   next_table;
+    uint32_t                    size;
+    uint32_t                    next_free;
+    struct object*              ote[0];
+};
+
+struct onyx_object_table* object_table;
+GC_descr T_object_table;
+
+struct onyx_object_table*
+onyx_object_table_new(uint32_t size)
+{
+    struct onyx_object_table *ot;
+    uint32_t ot_size;
+
+    ot_size = sizeof(struct onyx_object_table) + sizeof(struct object*) * size;
+    ot = GC_MALLOC_EXPLICITLY_TYPED(ot_size, T_object_table);
+
+    return ot;
+}
 
 void
 gcinit(int s, int d)
 {
+    GC_word T_ot_bitmap[GC_BITMAP_SIZE(struct onyx_object_table)] = {0};
+
+    GC_set_bit(T_ot_bitmap, GC_WORD_OFFSET(struct onyx_object_table, next_table));
+    T_object_table = GC_make_descriptor(T_ot_bitmap, GC_WORD_LEN(struct onyx_object_table));
+
     GC_INIT();
-    onyx_object_table = (struct object**)
-        GC_MALLOC_ATOMIC(sizeof(struct object*) * ONYX_INIT_OT_SIZE);
+
+    object_table = onyx_object_table_new(ONYX_INIT_OT_SIZE);
 }
 
 /* FIXME: remove this function */
