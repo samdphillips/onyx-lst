@@ -8,7 +8,15 @@ AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
+
+## Modify CFLAGS to disable optimizations
+if test -n "${CFLAGS}"; then
+  user_set_cxxflags=yes
+fi
 AC_PROG_CC
+if test X$user_set_cxxflags != Xyes; then
+  CFLAGS="-g"
+fi
 
 # Checks for libraries.
 

@@ -55,6 +55,7 @@ onyx_compact_object_table(void)
     uint32_t i, j, null_count, dest_size;
     struct object **new_object_table;
 
+    fprintf(stderr, "[debug] compacting object table\n");
     null_count = 0;
     for (i=0; i < onyx_top_ote; i++)
     {
@@ -62,11 +63,13 @@ onyx_compact_object_table(void)
             null_count++;
     }
 
+    fprintf(stderr, "[debug] %d nulls found\n", null_count);
     if (null_count < onyx_top_ote / 2)
         dest_size = onyx_top_ote * 2;
     else
         dest_size = onyx_top_ote;
 
+    fprintf(stderr, "[debug] object table size: %d -> %d\n", onyx_top_ote, dest_size);
     new_object_table = GC_MALLOC_ATOMIC(sizeof(struct object*) * dest_size);
 
     j = 0;
@@ -85,6 +88,21 @@ onyx_compact_object_table(void)
 }
 
 static void
+onyx_unregister_oop(struct object* object, void *trash)
+{
+    uint32_t i;
+
+    for (i=0; i < onyx_next_ote; i++)
+    {
+        if (onyx_object_table[i] == object)
+        {
+            onyx_object_table[i] = NULL;
+            return;
+        }
+    }
+}
+
+static void
 onyx_register_oop(struct object *object)
 {
     if (onyx_next_ote >= onyx_top_ote)
@@ -92,6 +110,8 @@ onyx_register_oop(struct object *object)
 
     onyx_object_table[onyx_next_ote] = object;
     onyx_next_ote++;
+
+    GC_REGISTER_FINALIZER_NO_ORDER(object, onyx_unregister_oop, NULL, NULL, NULL);
 }
 
 struct object*
@@ -111,6 +131,7 @@ gcialloc(int size)
     struct object *object;
 
     real_size = (size + BytesPerWord - 1) / BytesPerWord;
+    /* FIXME: interior should not be traced */
     object = gcalloc(real_size);
     SETSIZE(object, size);
     object->size |= FLAG_BIN;
@@ -126,7 +147,13 @@ gcollect(int i)
 void
 addStaticRoot(struct object **oop)
 {
-    UNIMP
+    if (staticRootTop >= STATICROOTLIMIT)
+    {
+        sysError("addStaticRoot: too many static references", (unsigned int)oop);
+    }
+
+    staticRoots[staticRootTop] = *oop;
+    staticRootTop++;
 }
 
 int
@@ -239,7 +266,7 @@ fileIn(FILE *fp)
     ContextClass = onyx_read_object(fp);
     initialMethod = onyx_read_object(fp);
     for (i = 0; i < 3; i++) {
-            binaryMessages[i] = onyx_read_object(fp);
+        binaryMessages[i] = onyx_read_object(fp);
     }
     badMethodSym = onyx_read_object(fp);
 
