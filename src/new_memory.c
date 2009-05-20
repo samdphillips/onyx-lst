@@ -7,6 +7,16 @@
 
 #define UNIMP fprintf(stderr,"Unimplemented\n"); exit(1);
 
+/* FIXME: make dynamic sized */
+struct object *rootStack[ROOTSTACKLIMIT];
+int rootTop = 0;
+
+/* Technically everything is static since libgc is a non-moving collector */
+/* FIXME: make dynamic sized */
+#define STATICROOTLIMIT (200)
+static struct object *staticRoots[STATICROOTLIMIT];
+static int staticRootTop = 0;
+
 void
 gcinit(int s, int d)
 {
@@ -67,3 +77,4 @@ exchangeObjects(struct object *a, struct object *b, uint size)
 {
     UNIMP
 }
+
