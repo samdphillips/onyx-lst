@@ -30,12 +30,8 @@ int rootTop = 0;
 static struct object *staticRoots[STATICROOTLIMIT];
 static int staticRootTop = 0;
 
+/* FIXME: tunable param */
 #define ONYX_INIT_OT_SIZE 1024
-/*
-static uint32_t onyx_top_ote = ONYX_INIT_OT_SIZE;
-static uint32_t onyx_next_ote = 0;
-static struct object **onyx_object_table;
-*/
 
 struct onyx_object_table
 {
@@ -48,7 +44,8 @@ struct onyx_object_table
 static void onyx_register_oop_in_table(struct object*, struct onyx_object_table*);
 
 struct onyx_object_table* object_table;
-GC_descr T_object_table;
+static GC_descr T_object_table;
+static GC_descr T_byte_object;
 
 struct onyx_object_table*
 onyx_object_table_new(uint32_t size)
@@ -56,7 +53,8 @@ onyx_object_table_new(uint32_t size)
     struct onyx_object_table *ot;
     uint32_t ot_size;
 
-    ot_size = sizeof(struct onyx_object_table) + sizeof(struct object*) * size;
+    ot_size = sizeof(struct onyx_object_table) + 
+        sizeof(struct object*) * size;
     ot = GC_MALLOC_EXPLICITLY_TYPED(ot_size, T_object_table);
 
     return ot;
@@ -65,12 +63,22 @@ onyx_object_table_new(uint32_t size)
 void
 gcinit(int s, int d)
 {
-    GC_word T_ot_bitmap[GC_BITMAP_SIZE(struct onyx_object_table)] = {0};
-
-    GC_set_bit(T_ot_bitmap, GC_WORD_OFFSET(struct onyx_object_table, next_table));
-    T_object_table = GC_make_descriptor(T_ot_bitmap, GC_WORD_LEN(struct onyx_object_table));
+    GC_word T_ot_bitmap[GC_BITMAP_SIZE(struct onyx_object_table)] = {0},
+            T_bytes_bitmap[GC_BITMAP_SIZE(struct object)] = {0};
 
     GC_INIT();
+
+    /* set up type descriptor for object tables */
+    GC_set_bit(T_ot_bitmap, 
+            GC_WORD_OFFSET(struct onyx_object_table, next_table));
+    T_object_table = GC_make_descriptor(T_ot_bitmap, 
+            GC_WORD_LEN(struct onyx_object_table));
+
+    /* set up type descriptor for byte objects */
+    GC_set_bit(T_bytes_bitmap,
+            GC_WORD_OFFSET(struct object, class));
+    T_byte_object = GC_make_descriptor(T_bytes_bitmap,
+            GC_WORD_LEN(struct object));
 
     object_table = onyx_object_table_new(ONYX_INIT_OT_SIZE);
 }
@@ -157,18 +165,13 @@ gcialloc(int size)
     uint32_t real_size;
     struct object *object;
 
-    real_size = (size + BytesPerWord - 1) / BytesPerWord;
-    /* FIXME: interior should not be traced */
-    object = gcalloc(real_size);
+    real_size = ((size + BytesPerWord - 1) / BytesPerWord + 2) *
+        sizeof(struct object*);
+    object = GC_MALLOC_EXPLICITLY_TYPED(real_size, T_byte_object);
     SETSIZE(object, size);
     object->size |= FLAG_BIN;
+    onyx_register_oop(object);
     return object;
-}
-
-struct object*
-gcollect(int i)
-{
-    UNIMP
 }
 
 void
@@ -192,7 +195,7 @@ isDynamicMemory(struct object *oop)
 /* FIXME: should dynamically allocate this and let it get freed up when
  * we're done.  Also should probably be localized */
 static struct object* onyx_indir_array[4096];
-static uint32_t onyx_indir_top = 0;
+static uint32_t onyx_indir_top;
 
 /* FIXME: these names should be more specific to their task */
 
@@ -282,6 +285,8 @@ fileIn(FILE *fp)
 {
     uint32_t i;
 
+    onyx_indir_top = 0;
+
     nilObject = onyx_read_object(fp);
     trueObject = onyx_read_object(fp);
     falseObject = onyx_read_object(fp);
@@ -304,6 +309,8 @@ fileIn(FILE *fp)
 int 
 fileOut(FILE *fp)
 {
+    uint32_t i;
+    onyx_indir_top = 0;
     UNIMP
 }
 
