@@ -29,6 +29,7 @@
  - block temps?
  - allow empty blocks
  - allow empty methods
+ - ':=' assignment syntax
 - break up primitives
 - XML stuff
 - Namespaces
