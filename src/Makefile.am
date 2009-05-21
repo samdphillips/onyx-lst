@@ -1,5 +1,5 @@
 
-AM_CFLAGS = -I/usr/include/gc
+AM_CPPFLAGS = -I/usr/include/gc
 bin_PROGRAMS = onyx onyx-boot
 
 onyx_SOURCES = interp.c new_memory.c main.c
