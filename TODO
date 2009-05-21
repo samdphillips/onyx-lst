@@ -14,12 +14,15 @@
  - fix File API
   - split into file objects and file streams
   - change EOF marker to nil
+  - change open file table to be unlimited
 - Exits on some recoverable errors
 - Image source file out
 - autotools
 - LargeIntegers, Float
 - Proper random number generation
 - use libgc
+ - finish memory API
+ + byteobjects should use gc_typed interface
 - readline
 - Unicode whatnot
 - MetaClass hierarchy
