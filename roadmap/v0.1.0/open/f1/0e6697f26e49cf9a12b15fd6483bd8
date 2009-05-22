@@ -1,1 +1,8 @@
-Description: - NrM number syntax support
+Description: NrM number syntax support
+
+The Parser should be about to handle the BASErVALUE numeric format.  For
+instance:
+
+  - 16rFF
+  - 2r10100111
+  - etc.
