@@ -1,1 +1,1 @@
-Description: - Compiler may not be parsing statements after a primitive.
+Description: Compiler is not compiling methods with primitives correctly
