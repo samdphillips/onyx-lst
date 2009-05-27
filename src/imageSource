@@ -821,6 +821,17 @@ METHOD Char
 < aChar
 	^ value < aChar value
 !
+METHOD Char
+baseValue: base
+    "Answer the value of a ""digit"" in base."
+    | v |
+    self isDigit ifTrue: [ v <- self value - 48 ].
+    self isAlphabetic ifTrue: [ v <- self upperCase value - 55 ].
+
+    v isNil ifTrue: [ ^ nil ].
+    base <= v ifTrue: [ ^ nil ].
+    ^ v
+!
 COMMENT ---------- Collection ------------
 METHOD Collection
 noElement
@@ -1306,14 +1317,24 @@ copy
 	<23 self String>
 !
 METHOD String
-asNumber | val |
+asNumber: base
+    | charValue value |
+    value <- 0.
+    self do: [:char | 
+        charValue <- char baseValue: base.
+        charValue isNil ifTrue: [ ^ nil ].
+        value <- value * base + charValue
+    ].
+    ^ value
+!
+METHOD String
+asNumber
 	" parse a base-10 ASCII number, return nil on failure "
-	val <- 0.
-	self do: [:c|
-		c isDigit ifFalse: [^nil].
-		val <- (val * 10) + (c value - 48)
-	].
-	^val
+    | index base | 
+    index <- self indexOf: $r.
+    index isNil ifTrue: [ ^ self asNumber: 10 ].
+    base <- (self from: 1 to: index - 1) asNumber: 10.
+    ^ (self from: index + 1) asNumber: base
 !
 METHOD String
 hash | sz |
