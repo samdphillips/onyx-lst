@@ -5,8 +5,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include "memory.h"
 #include "interp.h"
+#include "onyx-char.h"
 
 FILE *fin;
 char inputBuffer[1500], *p, tokenBuffer[80];
@@ -831,10 +833,7 @@ parseChar(void)
 	struct object * newObj;
 
 	p++;
-	newObj = gcalloc(1);
-	newObj->class = lookupGlobal("Char", 0);
-	newObj->data[0] = newInteger((int) *p);
-	genInstruction(PushLiteral, addLiteral(newObj));
+        genInstruction(PushLiteral, addLiteral(onyx_char_tag((char)*p)));
 	p++; skipSpaces();
 	return 1;
 }
@@ -1547,6 +1546,7 @@ imageOut(FILE *fp, struct object *obj)
 		return;
 	}
 
+        /* FIXME: combine immediates into one image tag type */
 	/* Integer objects are simply encoded as the binary value */
 	if (IS_SMALLINT(obj)) {
 		int val = integerValue(obj);
@@ -1555,6 +1555,15 @@ imageOut(FILE *fp, struct object *obj)
 		fwrite(&val, sizeof(val), 1, fp);
 		return;
 	}
+
+        if (onyx_is_char(obj))
+        {
+            uint32_t val = (uint32_t)obj;
+
+            writeWord(6, fp);
+            fwrite(&val, sizeof(uint32_t), 1, fp);
+            return;
+        }
 
 	/* see if already written */
 	for (i = 0; i < imageTop; i++) {
@@ -1739,6 +1748,7 @@ main(void)
 	imageOut(fd, falseObject);
 	imageOut(fd, globalValues);
 	imageOut(fd, SmallIntClass);
+	imageOut(fd, CharClass);
 	imageOut(fd, IntegerClass);
 	imageOut(fd, ArrayClass);
 	imageOut(fd, BlockClass);

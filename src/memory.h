@@ -57,7 +57,7 @@ struct byteObject {
 #define IS_SMALLINT(x) ((((int)(x)) & 0x01) != 0)
 #define FITS_SMALLINT(x) ((((int)(x)) >= INT_MIN/2) && \
 	(((int)(x)) <= INT_MAX/2))
-#define CLASS(x) (IS_SMALLINT(x) ? SmallIntClass : ((x)->class))
+#define CLASS(x) onyx_object_class(x)
 #define integerValue(x) (((int)(x)) >> 1)
 #define newInteger(x) ((struct object *)((((int)(x)) << 1) | 0x01))
 
@@ -98,7 +98,7 @@ extern void addStaticRoot(struct object **);
 
 extern struct object *nilObject, *trueObject,
 	*falseObject, *SmallIntClass, *ArrayClass, *BlockClass,
-	*ContextClass, *globalsObject, *initialMethod,
+	*ContextClass, *CharClass, *globalsObject, *initialMethod,
 	*binaryMessages[3], *IntegerClass, *badMethodSym;
 
 /*
@@ -111,6 +111,8 @@ extern struct object *gcollect(int), *staticAllocate(int),
 extern void exchangeObjects(struct object *, struct object *, uint);
 
 extern int isDynamicMemory(struct object *);
+
+extern struct object *onyx_object_class(struct object*);
 
 #if 0
 #define gcalloc(sz) (((memoryPointer = WORDSDOWN(memoryPointer, (sz) + 2)) < \

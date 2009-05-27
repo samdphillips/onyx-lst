@@ -192,6 +192,16 @@ isDynamicMemory(struct object *oop)
     return 0;
 }
 
+struct object*
+onyx_object_class(struct object *obj)
+{
+    if (IS_SMALLINT(obj))
+        return SmallIntClass;
+    else if (onyx_is_char(obj))
+        return CharClass;
+    return obj->class;
+}
+
 /* FIXME: should dynamically allocate this and let it get freed up when
  * we're done.  Also should probably be localized */
 static struct object* onyx_indir_array[4096];
@@ -274,7 +284,17 @@ onyx_read_object(FILE *fp)
             newObj = onyx_indir_array[0];
             break;
 
-        /* FIXME: default case */
+        case 6: /* Char object */
+            {
+                uint32_t val;
+                (void)fread(&val, sizeof(val), 1, fp);
+                newObj = (struct object*)val;
+            }
+            break;
+
+        default:
+            sysError("bad image typecode", type);
+
     }
 
     return newObj;
@@ -292,6 +312,7 @@ fileIn(FILE *fp)
     falseObject = onyx_read_object(fp);
     globalsObject = onyx_read_object(fp);
     SmallIntClass = onyx_read_object(fp);
+    CharClass = onyx_read_object(fp);
     IntegerClass = onyx_read_object(fp);
     ArrayClass = onyx_read_object(fp);
     BlockClass = onyx_read_object(fp);
