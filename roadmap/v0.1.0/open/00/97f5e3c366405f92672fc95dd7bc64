@@ -1,6 +1,0 @@
-Description: remove open file descriptor limit
-
-Remove the limit on open file descriptors.  Instead of the body of the
-object holding an integer into a lookup table, store the FILE*.
-
-All File primitives will need to be modified for the new interface.

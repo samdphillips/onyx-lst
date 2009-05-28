@@ -1,5 +1,0 @@
-Description: Replace object memory with libgc based object memory
-
-This is mostly complete currently.  Need to finish image file out and
-Object>>#become: support.
-

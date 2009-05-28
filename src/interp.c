@@ -34,7 +34,7 @@ extern int cacheMiss;
 
 struct object *nilObject, *trueObject, *falseObject,
 	*SmallIntClass, *ArrayClass, *BlockClass, *ContextClass,
-	*globalsObject, *initialMethod, *binaryMessages[3],
+	*CharClass, *globalsObject, *initialMethod, *binaryMessages[3],
 	*IntegerClass, *badMethodSym;
 
 /*
@@ -739,7 +739,7 @@ checkCache:
 		    break;
 
 	    case 3:	/* print a single character */
-		    low = integerValue(stack->data[--stackTop]);
+                    low = onyx_char_untag(stack->data[--stackTop]);
 		    putchar(low); /* fflush(stdout); */
 		    returnedValue = nilObject;
 		    break;
@@ -1124,6 +1124,16 @@ checkCache:
 		x = l;
 		returnedValue = newInteger(x);
 		break;
+
+            case 41:    /* Char >> #value */
+                low = onyx_char_untag(stack->data[--stackTop]);
+                returnedValue = newInteger(low);
+                break;
+
+            case 42:    /* Char class >> #basicNew: */
+                low = integerValue(stack->data[--stackTop]);
+                returnedValue = onyx_char_tag(low);
+                break;
 
 	    default:
 			    /* pop arguments, try primitive */

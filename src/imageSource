@@ -28,7 +28,7 @@ CLASS Magnitude     Object
 RAWCLASS MetaSymbol    Class         MetaMagnitude     symbols
 RAWCLASS Symbol        MetaSymbol    Magnitude
 RAWCLASS MetaChar      Class         MetaMagnitude     chars
-RAWCLASS Char          MetaChar      Magnitude         value
+RAWCLASS Char          MetaChar      Magnitude
 CLASS Collection    Magnitude
 CLASS List          Collection         elements
 CLASS Dictionary    Collection        keys values
@@ -394,9 +394,6 @@ notNil
 !
 METHOD Undefined
 main	| command |
-	" initialize classes "
-	Char initialize.
-
 	" main execution loop "
 	[ '-> ' print. command <- String input. command notNil ]
 		whileTrue: [ command isEmpty
@@ -713,16 +710,16 @@ initialize
 !
 METHOD MetaChar
 basicNew: value
-	" create and initialize a new char "
-	^ self in: self new at: 1 put: value
+    " return unique Char for ASCII value "
+    <42 value>
+    self primitiveFailed
 !
 METHOD MetaChar
 new: value
-	" return unique Char for ASCII value (or EOF) "
-	(value < 257) ifTrue: [ ^ chars at: value+1 ].
-
-	" otherwise build a custom Char "
-	^ self basicNew: value
+    (value between: 0 and: 255) 
+        ifTrue: [ ^ self basicNew: value ].
+    value printNl.
+    self error: 'invalid value'
 !
 METHOD MetaChar
 newline
@@ -733,11 +730,6 @@ METHOD MetaChar
 tab
 		" return tab character "
 	^ self new: 9
-!
-METHOD MetaChar
-eof
-		" return an EOF indication--not a true Char, but polymorphic "
-	^ self new: 256
 !
 METHOD MetaChar
 doInput
@@ -754,11 +746,11 @@ input	| c |
 METHOD Char
 value
 		" return our ascii value as an integer "
-	^ value
+	<41 self>
 !
 METHOD Char
 hash
-	^ value
+	^ self value
 !
 METHOD Char
 isDigit
@@ -777,18 +769,14 @@ isAlphabetic
 	^ self isLowerCase or: [ self isUpperCase ]
 !
 METHOD Char
-isEOF
-	^ value = 256
-!
-METHOD Char
 lowerCase
 	self isUpperCase
-		ifTrue: [ ^ Char new: (value - 65) + 97 ]
+		ifTrue: [ ^ Char new: (self value - 65) + 97 ]
 !
 METHOD Char
 upperCase
 	self isLowerCase
-		ifTrue: [ ^ Char new: (value - 97) + 65 ]
+		ifTrue: [ ^ Char new: (self value - 97) + 65 ]
 !
 METHOD Char
 isAlphanumeric
@@ -797,12 +785,14 @@ isAlphanumeric
 !
 METHOD Char
 isBlank
-		"spaces, tabs and newlines are all blank"
-	^ value = 32 or: [ value = 9 or: [ value = 10 ] ]
+    | value |
+    "spaces, tabs and newlines are all blank"
+    value <- self value.
+    ^ value = 32 or: [ value = 9 or: [ value = 10 ] ]
 !
 METHOD Char
 print
-	<3 value>
+	<3 self>
 !
 METHOD Char
 asString
@@ -815,11 +805,11 @@ printString
 !
 METHOD Char
 = aChar
-	^ value = aChar value
+	^ self value = aChar value
 !
 METHOD Char
 < aChar
-	^ value < aChar value
+	^ self value < aChar value
 !
 METHOD Char
 baseValue: base
@@ -2504,7 +2494,7 @@ error: aString
 !
 METHOD Parser
 currentChar
-	^ text at: index ifAbsent: [ Char eof ]
+	^ text at: index ifAbsent: [ nil ]
 !
 METHOD Parser
 nextChar
@@ -2518,7 +2508,7 @@ METHOD Parser
 nextLex	
 	self skipBlanks.
 	tokenType <- self currentChar.
-	tokenType isEOF   " end of input "
+	tokenType isNil   " end of input "
 		ifTrue: [ tokenType <- $  . token <- nil. ^ nil ].
 	tokenType isDigit ifTrue: [ ^ self lexInteger ].
 	tokenType isAlphabetic ifTrue: [ ^ self lexAlnum ].
@@ -2527,27 +2517,31 @@ nextLex
 METHOD Parser
 skipBlanks  | cc |
 	cc <- self currentChar.
+        cc isNil ifTrue: [ ^ self ].
 	[ cc isBlank ] whileTrue: [ cc <- self nextChar ].
 	( cc = $" ) ifTrue: [ self skipComment ]
 !
 METHOD Parser
 skipComment  | cc |
 	[ cc <- self nextChar.
-	  cc isEOF ifTrue: [ ^ self error: 'unterminated comment'].
+	  cc isNil ifTrue: [ ^ self error: 'unterminated comment'].
 	  cc ~= $" ] whileTrue: [ nil ].
 	self nextChar. self skipBlanks
 !
 METHOD Parser
-lexInteger	| start |
+lexInteger	| start curr |
 	start <- index.
-	[ self nextChar isDigit ]
-		whileTrue: [ nil ].
+        curr <- self currentChar.
+	[ curr notNil and: [ curr isDigit ] ]
+            whileTrue: [ self nextChar. 
+                         curr <- self currentChar ].
 	token <- text from: start to: index - 1
 !
 METHOD Parser
 lexAlnum | cc start |
 	start <- index.
-	[ ((cc <- self nextChar) isAlphanumeric) or: [ cc = $: ] ]
+	[ (cc <- self nextChar) notNil and:
+            [ cc isAlphanumeric or: [ cc = $: ] ] ]
 			whileTrue: [ nil ].
 		" add any trailing colons "
 	token <- text from: start to: index - 1
@@ -2557,6 +2551,7 @@ lexBinary	| c d |
 	c <- self currentChar.
 	token <- c asString.
 	d <- self nextChar.
+        d isNil ifTrue: [ ^ nil ].
 	(self charIsSyntax: c) ifTrue: [ ^ token ].
 	(((d isBlank
 		or: [ d isDigit])
@@ -2752,7 +2747,7 @@ readString  | first last cc |
 METHOD Parser
 readSymbol   | cc |
 	cc <- self currentChar.
-	(cc isEOF or: [ cc isBlank])
+	(cc isNil or: [ cc isBlank])
 		ifTrue: [ self error: 'invalid symbol'].
 	cc = $( ifTrue: [ ^ self readArray ].
 	(self charIsSyntax: cc)
