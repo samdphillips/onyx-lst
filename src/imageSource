@@ -2529,13 +2529,28 @@ skipComment  | cc |
 	self nextChar. self skipBlanks
 !
 METHOD Parser
-lexInteger	| start curr |
-	start <- index.
-        curr <- self currentChar.
-	[ curr notNil and: [ curr isDigit ] ]
-            whileTrue: [ self nextChar. 
-                         curr <- self currentChar ].
-	token <- text from: start to: index - 1
+lexInteger	
+    | start |
+    start <- index.
+    [ self currentChar notNil 
+        and: [ self currentChar isDigit ] ] 
+            whileTrue: [ self nextChar ].
+
+    token <- text from: start to: index - 1.
+
+    self currentChar = $r
+        ifTrue: [ self lexBaseInteger ]
+!
+METHOD Parser
+lexBaseInteger
+    | start |
+    start <- index.
+    self nextChar.
+    [ self currentChar notNil
+        and: [ self currentChar isAlphanumeric ] ]
+            whileTrue: [ self nextChar ].
+
+    token <- token + (text from: start to: index - 1)
 !
 METHOD Parser
 lexAlnum | cc start |
