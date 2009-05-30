@@ -31,5 +31,6 @@ AC_FUNC_MALLOC
 AC_CHECK_FUNCS([bzero strdup])
 
 AC_CONFIG_FILES([Makefile
-                 src/Makefile])
+                 src/Makefile
+                 doc/Makefile])
 AC_OUTPUT
