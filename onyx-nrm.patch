@@ -1,0 +1,56 @@
+=== modified file 'ImageBuilder/imageSource'
+--- ImageBuilder/imageSource	2009-05-11 23:17:08 +0000
++++ ImageBuilder/imageSource	2009-05-13 03:34:41 +0000
+@@ -821,6 +821,18 @@
+ < aChar
+ 	^ value < aChar value
+ !
++METHOD Char
++baseValue: base
++    "Answer the value of this character in base-n"
++    | v |
++    self isDigit ifTrue: [ v <- self value - 48 ].
++    self isAlphabetic ifTrue: [ v <- self upperCase value - 55 ].
++
++    v isNil ifTrue: [ ^ nil ].
++
++    base <= v ifTrue: [ ^ nil ].
++    ^ v
++!
+ COMMENT ---------- Collection ------------
+ METHOD Collection
+ noElement
+@@ -1306,14 +1318,24 @@
+ 	<23 self String>
+ !
+ METHOD String
+-asNumber | val |
+-	" parse a base-10 ASCII number, return nil on failure "
+-	val <- 0.
+-	self do: [:c|
+-		c isDigit ifFalse: [^nil].
+-		val <- (val * 10) + (c value - 48)
+-	].
+-	^val
++asNumber: base
++    | val v |
++    val <- 0.
++    self do: [:c | 
++        v <- c baseValue: base.
++        v isNil ifTrue: [ ^ nil ].
++        val <- (val * base) + v
++    ].
++    ^ val
++!
++METHOD String
++asNumber
++    | i base |
++    i <- self indexOf: $r.
++    i isNil ifTrue: [ ^ self asNumber: 10 ].
++
++    base <- (self from: 1 to: i - 1) asNumber: 10.
++    ^ (self from: i + 1) asNumber: base
+ !
+ METHOD String
+ hash | sz |
+
