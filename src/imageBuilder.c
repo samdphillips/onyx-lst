@@ -92,8 +92,8 @@ parseError(char * msg)
 /* ------------------------------------------------------------- */
 
 int globalTop = 0;
-char *globalNames[100];
-struct object *globals[100];
+char *globalNames[200];
+struct object *globals[200];
 
 void
 addGlobalName(char * name, struct object * value)
