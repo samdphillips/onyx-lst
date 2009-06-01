@@ -65,4 +65,7 @@ CLASS PrimitiveNode ParserNode number arguments
 CLASS BlockNode ParserNode statements temporaryLocation
 CLASS CascadeNode ParserNode head list
 CLASS MessageNode ParserNode receiver name arguments
+CLASS ThisContextNode ParserNode
+COMMENT
 COMMENT ---------- method bodies ------------
+COMMENT

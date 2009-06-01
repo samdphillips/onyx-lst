@@ -257,21 +257,23 @@ METHOD Parser
 nameNode: name
 	" make a new name node "
 	name == #super
-		ifTrue: [ ^ (ArgumentNode at: lineNum) position: 0 ].
+            ifTrue: [ ^ (ArgumentNode at: lineNum) position: 0 ].
+        name == #thisContext
+            ifTrue: [ ^ ThisContextNode at: lineNum ].
 	(1 to: tempNames size) do: [:i |
-		(name == (tempNames at: i))
-			ifTrue: [ ^ (TemporaryNode at: lineNum)
-				position: i ] ].
+            (name == (tempNames at: i))
+                ifTrue: 
+                    [ ^ (TemporaryNode at: lineNum) position: i ] ].
 	(1 to: argNames size) do: [:i |
-		(name == (argNames at: i))
-			ifTrue: [ ^ (ArgumentNode at: lineNum) position: i ] ].
+            (name == (argNames at: i))
+                ifTrue: [ ^ (ArgumentNode at: lineNum) position: i ] ].
 	(1 to: instNames size) do: [:i |
-		(name == (instNames at: i))
-			ifTrue: [ ^ (InstNode at: lineNum) position: i ] ].
+            (name == (instNames at: i))
+                ifTrue: [ ^ (InstNode at: lineNum) position: i ] ].
 	^ (LiteralNode at: lineNum);
-		value: (globals at: name
-			ifAbsent: [ ^ self error:
-				'unrecognized name: ' + name printString ])
+            value: (globals at: name
+			    ifAbsent: 
+                                [ ^ self error: 'unrecognized name: ' + name printString ])
 !
 METHOD Parser
 readLiteral   | node |

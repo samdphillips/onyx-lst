@@ -26,7 +26,7 @@ imageSource_SOURCES = boot/classes.bst boot/Object.bst boot/Class.bst \
 		      boot/TemporaryNode.bst boot/InstNode.bst \
 		      boot/PrimitiveNode.bst boot/BlockNode.bst \
 		      boot/CascadeNode.bst boot/MessageNode.bst \
-		      boot/Encoder.bst boot/MAIN.bst
+		      boot/ThisContextNode.bst boot/Encoder.bst boot/MAIN.bst
 
 imageSource: $(imageSource_SOURCES)
 	cat $^ > $@
