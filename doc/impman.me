@@ -1,0 +1,223 @@
+
+.de $C
+.(x t
+\\$1 \\$2: \\$3
+.)x
+.sh 1 _ \\$2 0 0 0 0 0
+.ds SECT
+.ds CHAP \\$3
+..
+
+.de $0
+.(x t
+.ti \\$3 * .1i
+\\$2 \\$1
+.)x
+.if \\$3=2 \{
+.ds SECT \\$1
+\}
+..
+
+.ef '% | Chapter \\\\n(ch: \\\\*[CHAP]'''
+.of '''\\\\*[SECT] | %'
+
+.tp
+.sp 2i
+.(l C
+Onyx Implementation Manual
+.sp
+version 0.1
+.sp
+Sam Phillips
+.sp
+<sam@dasbistro.com>
+.)l
+
+.+c "Introduction"
+
+Onyx is an implementation of the Smalltalk language.  The goal is for
+Onyx to support the ANSI Smalltalk Standard[CITE], and
+Smalltalk-80[CITE] This document describes the design and rationale
+behind the Onyx Virtual Machine (OVM.)
+
+The OVM has a fairly standard design consisting of an Object Memory and
+Bytecode Interpreter.  The Object Memory keeps track of objects and the
+data that they are composed of.  The Interpreter executes bytecodes
+which manipulate the objects contained in the Object Memory.
+
+.sh 2 "Overview"
+
+.+c "Object Representation"
+
+.sh 2 "Immediates"
+
+.begin dformat
+noname
+    31-1 immediate data
+    0    1
+noname
+    31-2 immediate data
+    1-0  10
+.end
+
+.sh 3 "SmallIntegers"
+
+.begin dformat
+SmallInteger
+    31-1 Signed Integer
+    0    1
+.end
+
+.sh 3 "Booleans"
+
+.begin dformat
+Boolean
+    31-3 boolean value
+    2-0  110
+true
+    31-3 1..1
+    2-0  110
+false
+    31-3 0..0
+    2-0  110
+.end
+
+.sh 3 "Characters"
+
+.begin dformat
+Character
+    31-20 Pad
+    19-12 Reserved
+    11-4  Ascii Character
+    3-0   1010
+.end
+
+.sh 3 "nil"
+
+.begin dformat
+nil
+    31-5 0..0
+    4-0  10010
+.end
+
+.sh 2 "Ordinary Objects"
+
+.begin dformat
+style recspread 0
+Object
+    31-2    size
+    1-1     B
+    0-0     G
+noname
+    31-0    class
+noname
+    31-0    object data ...
+.end
+
+.sh 3 "Byte Objects"
+
+.begin dformat
+Byte Object
+    31-2    size
+    1-1     1
+    0-0     G
+noname
+    31-0    class
+noname
+    31-0    size bytes ...
+.end
+
+.sh 4 "ByteArrays"
+.sh 4 "Symbols"
+.sh 4 "Strings"
+
+.sh 3 "Pointer Objects"
+
+.begin dformat
+Pointer Object
+    31-2    size
+    1-1     0
+    0-0     G
+noname
+    31-0    class
+noname
+    31-0    size pointers ...
+.end
+
+.sh 4 "Processes"
+.begin dformat
+Process
+    31-0    active context
+noname
+    31-0    status (type?)
+noname
+    31-0    result (type?)
+.end
+
+.sh 4 "Contexts"
+.begin dformat
+Context
+    31-0    method
+noname
+    31-0    arguments array
+noname
+    31-0    temporaries array
+noname
+    31-0    stack
+noname
+    31-0    byte pointer
+noname
+    31-0    stack pointer
+noname
+    31-0    calling context
+.end
+
+.sh 4 "BlockContexts"
+.begin dformat
+BlockContext
+    31-0    method
+noname
+    31-0    arguments array
+noname
+    31-0    temporaries array
+noname
+    31-0    stack
+noname
+    31-0    byte pointer
+noname
+    31-0    stack pointer
+noname
+    31-0    calling context
+noname
+    31-0    argument location (?)
+noname
+    31-0    home context
+noname
+    31-0    block byte pointer
+.end
+
+
+.sh 4 "Methods"
+.sh 4 "Classes"
+.sh 4 "Node"
+.sh 4 "Symbol Table"
+
+.+c "Object Memory"
+
+.+c "Interpreter"
+.sh 2 "Instruction Set"
+
+.+c "Bootstrap"
+
+.hx
+.bp
+
+.ef '% | Table of Contents'''
+.of '''Table of Contents | %'
+
+.++ P
+.+c "Table of Contents"
+.xp t
+
+
+
