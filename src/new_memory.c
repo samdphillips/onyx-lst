@@ -153,16 +153,22 @@ struct object*
 gcalloc(int size)
 {
     struct object *object;
+    uint32_t i;
     object = GC_MALLOC((size + 2) * sizeof(void*));
     SETSIZE(object, size);
     onyx_register_oop(object);
+    object->class = nilObject;
+    for (i=0; i < size; i++)
+    {
+        object->data[i] = nilObject;
+    }
     return object;
 }
 
 struct object*
 gcialloc(int size)
 {
-    uint32_t real_size;
+    uint32_t real_size, i;
     struct object *object;
 
     real_size = ((size + BytesPerWord - 1) / BytesPerWord + 2) *
@@ -170,6 +176,11 @@ gcialloc(int size)
     object = GC_MALLOC_EXPLICITLY_TYPED(real_size, T_byte_object);
     SETSIZE(object, size);
     object->size |= FLAG_BIN;
+    object->class = nilObject;
+    for (i=0; i < size; i++)
+    {
+        ((struct byteObject*)object)->bytes[i] = 0;
+    }
     onyx_register_oop(object);
     return object;
 }
