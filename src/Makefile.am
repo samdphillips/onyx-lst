@@ -13,7 +13,8 @@ CLEANFILES = systemImage imageSource
 imageSource_SOURCES = boot/classes.bst boot/Object.bst boot/Class.bst \
 		      boot/Undefined.bst boot/Boolean.bst boot/True.bst \
 		      boot/False.bst boot/Process.bst boot/Context.bst \
-		      boot/Block.bst boot/Magnitude.bst boot/Symbol.bst \
+		      boot/Block.bst boot/Exception.bst boot/Magnitude.bst \
+		      boot/Symbol.bst \
 		      boot/Method.bst boot/Char.bst boot/Collection.bst \
 		      boot/Array.bst boot/OrderedArray.bst boot/ByteArray.bst \
 		      boot/String.bst boot/List.bst boot/Dictionary.bst \

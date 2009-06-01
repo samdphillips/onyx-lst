@@ -92,7 +92,7 @@ int execute(struct object *aProcess, int ticks);
 	shares fields with creator, plus a couple new ones
 */
 
-# define blockSize 10
+# define blockSize 11
 # define methodInBlock methodInContext
 # define argumentsInBlock argumentsInContext
 # define temporariesInBlock temporariesInContext
@@ -103,6 +103,7 @@ int execute(struct object *aProcess, int ticks);
 # define creatingContextInBlock 8
 /* the following are saved in different place so they don't get clobbered*/
 # define bytePointerInBlock 9
+# define exceptionHandlerInBlock 10
 
 /*
 	A Method has:
