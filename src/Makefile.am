@@ -14,11 +14,11 @@ imageSource_SOURCES = boot/classes.bst boot/Object.bst boot/Class.bst \
 		      boot/Undefined.bst boot/Boolean.bst boot/True.bst \
 		      boot/False.bst boot/Process.bst boot/Context.bst \
 		      boot/Block.bst boot/Exception.bst boot/Magnitude.bst \
-		      boot/Symbol.bst \
+		      boot/Symbol.bst boot/ExceptionHandler.bst \
 		      boot/Method.bst boot/Char.bst boot/Collection.bst \
 		      boot/Array.bst boot/OrderedArray.bst boot/ByteArray.bst \
 		      boot/String.bst boot/List.bst boot/Dictionary.bst \
-		      boot/Set.bst boot/Number.bst boot/SmallInt.bst \
+		      boot/Set.bst boot/ExceptionSet.bst boot/Number.bst boot/SmallInt.bst \
 		      boot/Integer.bst boot/Node.bst boot/Interval.bst \
 		      boot/Link.bst boot/Association.bst boot/Tree.bst \
 		      boot/File.bst boot/Parser.bst boot/ParserNode.bst \

@@ -35,6 +35,11 @@ whileFalse: aBlock
     self value ifFalse: [ aBlock value. ^ self whileFalse: aBlock ]
 !
 METHOD Block
+on: exceptionSet do: exceptionBlock
+    exceptionHandler <- ExceptionHandler on: exceptionSet do: exceptionBlock.
+    ^ self value
+!
+METHOD Block
 backtrace | narg |
     " backtrace context calls "
     'block from ' print. method name print.

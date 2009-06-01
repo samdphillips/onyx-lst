@@ -24,6 +24,7 @@ CLASS Process           Object          context state result
 CLASS Context           Object          method arguments temporaries stack bytePointer stackTop previousContext
 CLASS Block             Context         argumentLocation creatingContext oldBytePointer exceptionHandler
 CLASS Exception         Object          messageText tag signalledContext handlerContext
+CLASS ExceptionHandler  Object          exceptionSet exceptionBlock
 CLASS Method            Object          name byteCodes literals stackSize temporarySize class text
 CLASS Magnitude         Object
 RAWCLASS MetaSymbol     Class           MetaMagnitude     symbols
@@ -41,6 +42,7 @@ COMMENT Not sure what is up with this one?
 CLASS MetaString        Class           MetaArray
 CLASS String            Array
 CLASS Set               Collection      members growth
+CLASS ExceptionSet      Set
 CLASS IdentitySet       Set
 CLASS Number            Magnitude
 CLASS Integer           Number
