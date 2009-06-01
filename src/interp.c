@@ -446,29 +446,30 @@ execute(struct object *aProcess, int ticks)
 	    returnedValue = gcalloc(blockSize);
 	    returnedValue->class = BlockClass;
 	    returnedValue->data[bytePointerInContext] =
-	    returnedValue->data[stackTopInBlock] = 
-	    returnedValue->data[previousContextInBlock] = NULL;
+	        returnedValue->data[stackTopInBlock] = 
+	        returnedValue->data[previousContextInBlock] = NULL;
 	    returnedValue->data[bytePointerInBlock] =
-		    newInteger(bytePointer);
+                newInteger(bytePointer);
 	    returnedValue->data[argumentLocationInBlock] = newInteger(low);
 	    returnedValue->data[stackInBlock] = rootStack[--rootTop];
 	    context = rootStack[--rootTop];
 	    if (CLASS(context) == BlockClass) {
-		    returnedValue->data[creatingContextInBlock] =
-			    context->data[creatingContextInBlock];
+                returnedValue->data[creatingContextInBlock] =
+                    context->data[creatingContextInBlock];
 	    } else {
-		    returnedValue->data[creatingContextInBlock] = context;
+                returnedValue->data[creatingContextInBlock] = context;
 	    }
 	    method = returnedValue->data[methodInBlock] = 
-		    context->data[methodInBlock];
+                context->data[methodInBlock];
 	    arguments = returnedValue->data[argumentsInBlock] =
-		    context->data[argumentsInBlock];
+                context->data[argumentsInBlock];
 	    temporaries = returnedValue->data[temporariesInBlock] =
-		    context->data[temporariesInBlock];
+                context->data[temporariesInBlock];
 	    stack = context->data[stackInContext];
 	    bp = bytePtr(method->data[byteCodesInMethod]);
 	    stack->data[stackTop++] = returnedValue;
-		    /* zero these out just in case GC occurred */
+
+            /* zero these out just in case GC occurred */
 	    literals = instanceVariables = 0;
 	    bytePointer = high;
 	    break;
