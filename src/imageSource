@@ -2519,7 +2519,8 @@ METHOD Parser
 skipBlanks  | cc |
 	cc <- self currentChar.
         cc isNil ifTrue: [ ^ self ].
-	[ cc notNil and: [ cc isBlank ] ] whileTrue: [ cc <- self nextChar ].
+	[ cc notNil and: [ cc isBlank ] ] 
+            whileTrue: [ cc <- self nextChar ].
 	( cc = $" ) ifTrue: [ self skipComment ]
 !
 METHOD Parser

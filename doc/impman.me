@@ -198,8 +198,47 @@ noname
 
 
 .sh 4 "Methods"
+.begin dformat
+Method
+    31-0    name
+noname
+    31-0    bytecode
+noname
+    31-0    literals
+noname
+    31-0    stack size
+noname
+    31-0    num temps
+noname
+    31-0    class
+noname
+    31-0    method text
+.end
+
 .sh 4 "Classes"
+.begin dformat
+Class
+    31-0    name
+noname
+    31-0    super class
+noname
+    31-0    method dictionary
+noname
+    31-0    instance size
+noname
+    31-0    instance variables
+.end
+
 .sh 4 "Node"
+.begin dformat
+Node
+    31-0    value
+noname
+    31-0    left subtree
+noname
+    31-0    right subtree
+.end
+
 .sh 4 "Symbol Table"
 
 .+c "Object Memory"
