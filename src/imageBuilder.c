@@ -721,6 +721,11 @@ nameTerm(char *name)
 		return 1;
 	}
 
+        if (strcmp(name, "thisContext") == 0) {
+            genInstruction(DoSpecial, 13);
+            return 1;
+        }
+
 	/* see if low constant */
 	for (i = 0; lowConstants[i]; i++) {
 		if (strcmp(lowConstants[i], name) == 0) {

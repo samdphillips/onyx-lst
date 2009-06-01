@@ -202,6 +202,7 @@ disassemble: indent at: initPC for: initCount | pc low high count needCR |
 				(literals at: low+1) print
 			].
 			(low = 12) ifTrue: [ 'breakpoint' print ].
+            (low = 13) ifTrue: [ 'thisContext' print ].
 		].
 		needCR ifTrue: [
 			Char newline print
