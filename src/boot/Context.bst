@@ -34,3 +34,7 @@ METHOD Context
 previousContext
 	^ previousContext
 !
+METHOD Context
+handles: anException
+    ^ false
+!
