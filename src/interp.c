@@ -1289,6 +1289,10 @@ doReturn2:
 		    context->data[stackTopInContext] = newInteger(stackTop);
 		    return(ReturnBreak);
 
+        case ThisContext:
+            stack->data[stackTop++] = context;
+            break;
+
 		default:
 		    sysError("invalid doSpecial", low);
 		    break;

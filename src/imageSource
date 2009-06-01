@@ -65,6 +65,7 @@ CLASS PrimitiveNode ParserNode number arguments
 CLASS BlockNode ParserNode statements temporaryLocation
 CLASS CascadeNode ParserNode head list
 CLASS MessageNode ParserNode receiver name arguments
+CLASS ThisContextNode ParserNode
 COMMENT ---------- method bodies ------------
 COMMENT -----------Object-------------------
 METHOD MetaObject
@@ -2709,6 +2710,9 @@ nameNode: name
 	" make a new name node "
 	name == #super
 		ifTrue: [ ^ (ArgumentNode at: lineNum) position: 0 ].
+    name == #thisContext
+        ifTrue: [ ^ ThisContextNode at: lineNum ].
+    "FIXME: use indexOf"
 	(1 to: tempNames size) do: [:i |
 		(name == (tempNames at: i))
 			ifTrue: [ ^ (TemporaryNode at: lineNum)
@@ -3167,6 +3171,11 @@ optimizeIf: encoder block: inBlock | save ssave |
 	encoder patch: save.
 	arguments first compileInLine: encoder block: inBlock.
 	encoder patch: ssave
+!
+METHOD ThisContextNode
+compile: encoder block: inBlock
+    encoder pushArgs: 1.
+    encoder genHigh: 15 low: 13
 !
 METHOD Encoder
 name: n

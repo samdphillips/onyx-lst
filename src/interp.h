@@ -29,16 +29,17 @@ int execute(struct object *aProcess, int ticks);
 
 /* types of special instructions (opcode 15) */
 
-# define SelfReturn 1
-# define StackReturn 2
-# define BlockReturn 3
-# define Duplicate 4
-# define PopTop 5
-# define Branch 6
-# define BranchIfTrue 7
-# define BranchIfFalse 8
-# define SendToSuper 11
-# define Breakpoint 12
+# define SelfReturn     1
+# define StackReturn    2
+# define BlockReturn    3
+# define Duplicate      4
+# define PopTop         5
+# define Branch         6
+# define BranchIfTrue   7
+# define BranchIfFalse  8
+# define SendToSuper    11
+# define Breakpoint     12
+# define ThisContext    13
 
 /* special constants */
 
