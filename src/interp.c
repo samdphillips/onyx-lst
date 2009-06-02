@@ -562,16 +562,6 @@ checkCache:
 		    cache[low].method = method;
 	    }
 
-	    /* see if we can optimize tail call */
-	    if (bp[bytePointer] == (DoSpecial * 16 + StackReturn)) {
-		    high = 1;
-	    } else if (bp[bytePointer] ==
-			    (DoSpecial * 16 + BlockReturn)) {
-		    high = 2;
-	    } else {
-		    high = 0;
-	    }
-
 	    /* build temporaries for new context */
 	    rootStack[rootTop++] = arguments;
 	    rootStack[rootTop++] = method;
@@ -607,16 +597,6 @@ checkCache:
 	    context->data[stackTopInContext] = newInteger(0);
 	    stackTop = 0;
 	    context->data[previousContextInContext] = rootStack[--rootTop];
-	    if (high == 1) {
-		    context->data[previousContextInContext] =
-		    context->data[previousContextInContext]->
-			    data[previousContextInContext];
-	    } else if (high == 2) {
-		    context->data[previousContextInContext] =
-		    context->data[previousContextInContext]->
-			    data[creatingContextInBlock]->
-			    data[previousContextInContext];
-	    }
 	    method = context->data[methodInContext] = rootStack[--rootTop];
 	    arguments = context->data[argumentsInContext] 
 		    = rootStack[--rootTop];
