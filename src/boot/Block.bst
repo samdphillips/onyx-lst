@@ -40,6 +40,10 @@ on: exceptionSet do: exceptionBlock
     ^ self value
 !
 METHOD Block
+handles: anException
+    ^ exceptionHandler notNil and: [ exceptionHandler handles: anException ]
+!
+METHOD Block
 backtrace | narg |
     " backtrace context calls "
     'block from ' print. method name print.

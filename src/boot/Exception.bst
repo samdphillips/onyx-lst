@@ -3,6 +3,12 @@ METHOD Exception
 signal
     self signalInContext: thisContext
 !
+METHOD MetaException
+foo
+    [ Exception new signal ]
+        on: Exception
+        do: [ 'got it' printNl ]
+!
 METHOD Exception
 signalInContext: aContext
     signalledContext <- aContext.
@@ -18,7 +24,8 @@ findHandler: startContext
     | ctx |
     ctx <- startContext.
     [ ctx notNil ] whileTrue: 
-        [ (ctx handles: self)
+        [ ctx method name printNl.
+          (ctx handles: self)
             ifTrue: [ ^ ctx ].
           ctx <- ctx previousContext ].
     ^ nil

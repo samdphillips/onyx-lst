@@ -32,9 +32,13 @@ backtrace | narg |
 !
 METHOD Context
 previousContext
-	^ previousContext
+    ^ previousContext
 !
 METHOD Context
 handles: anException
     ^ false
+!
+METHOD Context
+method
+    ^ method
 !
