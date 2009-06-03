@@ -7,7 +7,6 @@ METHOD Block
 value
     " start block execution "
     <8 self>
-    "FIXME: this is wrong is many ways"
     (self argCount)
 !
 METHOD Block
@@ -36,7 +35,8 @@ whileFalse: aBlock
 !
 METHOD Block
 on: exceptionSet do: exceptionBlock
-    exceptionHandler <- ExceptionHandler on: exceptionSet do: exceptionBlock.
+    exceptionHandler <- 
+        ExceptionHandler on: exceptionSet do: exceptionBlock.
     ^ self value
 !
 METHOD Block

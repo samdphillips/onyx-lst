@@ -1,21 +1,36 @@
 COMMENT --- Start Exception Methods ---
-METHOD Exception
-signal
-    self signalInContext: thisContext
+METHOD MetaException
+handles: anException
+    ^ anException isKindOf: self
 !
 METHOD MetaException
-foo
-    [ Exception new signal ]
-        on: Exception
-        do: [ 'got it' printNl ]
+signal
+    ^ self new signal
+!
+METHOD MetaException
+signal: aString
+    ^ self new signal: aString
+!
+METHOD Exception
+signal
+    ^ self signalInContext: thisContext
+!
+METHOD Exception
+signal: aString
+    self messageText: aString.
+    ^ self signal
+!
+METHOD Exception
+messageText: aString
+    messageText <- aString
 !
 METHOD Exception
 signalInContext: aContext
     signalledContext <- aContext.
     handlerContext <- self findHandler: aContext.
 
-    handlerContext notNil 
-        ifTrue: [ handlerContext value: self ].
+    handlerContext notNil
+        ifTrue: [ ^ handlerContext value: self ].
 
     self defaultAction
 !
@@ -24,9 +39,8 @@ findHandler: startContext
     | ctx |
     ctx <- startContext.
     [ ctx notNil ] whileTrue: 
-        [ ctx method name printNl.
-          (ctx handles: self)
-            ifTrue: [ ^ ctx ].
+        [ (ctx handles: self)
+            ifTrue: [ ^ ctx exceptionHandler ].
           ctx <- ctx previousContext ].
     ^ nil
 !
@@ -37,7 +51,7 @@ messageText
 !
 METHOD Exception
 defaultAction
-    'Exception: ' print.
+    self class print. ': ' print.
     self messageText printNl.
     <19>
 !

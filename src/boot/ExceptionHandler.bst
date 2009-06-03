@@ -13,3 +13,11 @@ METHOD ExceptionHandler
 exceptionBlock: aBlock
     exceptionBlock <- aBlock
 !
+METHOD ExceptionHandler
+handles: anException
+    ^ exceptionSet handles: anException
+!
+METHOD ExceptionHandler
+value: anException
+    ^ exceptionBlock value: anException
+!
