@@ -17,6 +17,15 @@ not
 		ifTrue: [ false ]
 		ifFalse: [ true ]
 !
+COMMENT ImageBuilder needs to be more flexible with binary selectors
+COMMENT METHOD Boolean
+COMMENT && aBoolean
+COMMENT     ^ self and: [ aBoolean ]
+COMMENT !
+COMMENT METHOD Boolean
+COMMENT || aBoolean
+COMMENT     ^ self or: [ aBoolean ]
+COMMENT !
 METHOD Boolean
 ifFalse: falseBlock ifTrue: trueBlock
 	^ self ifTrue: [ trueBlock  value ] ifFalse: [ falseBlock value ]
