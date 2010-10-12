@@ -1,7 +1,16 @@
 COMMENT --- Start ArgumentNode Methods ---
 METHOD ArgumentNode
+position: p name: aSymbol
+    self position: p.
+    self name: aSymbol
+!
+METHOD ArgumentNode
 position: p
 	position <- p
+!
+METHOD ArgumentNode
+name: aSymbol
+    name <- aSymbol
 !
 METHOD ArgumentNode
 isSuper

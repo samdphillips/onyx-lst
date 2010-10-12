@@ -58,9 +58,9 @@ CLASS BodyNode ParserNode statements
 CLASS ReturnNode ParserNode expression
 CLASS AssignNode ParserNode target expression
 CLASS LiteralNode ParserNode value
-CLASS ArgumentNode ParserNode position
-CLASS TemporaryNode ParserNode position
-CLASS InstNode ParserNode position
+CLASS ArgumentNode ParserNode position name
+CLASS TemporaryNode ParserNode position name
+CLASS InstNode ParserNode position name
 CLASS PrimitiveNode ParserNode number arguments
 CLASS BlockNode ParserNode statements temporaryLocation
 CLASS CascadeNode ParserNode head list
