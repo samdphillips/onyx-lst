@@ -243,6 +243,12 @@ noname
 
 .+c "Object Memory"
 
+Sometimes we need to scan through all of the objects in the Object
+Memory.  Since we have given the GC task to libgc we still need to keep
+track of the objects.  That is what the Object Table is for.  The body
+of the Object Table is marked so that libgc does not scan it for
+pointers (effectively working as a weak array.)
+
 .+c "Interpreter"
 .sh 2 "Instruction Set"
 
