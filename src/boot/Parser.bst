@@ -257,17 +257,17 @@ METHOD Parser
 nameNode: name
 	" make a new name node "
 	name == #super
-		ifTrue: [ ^ (ArgumentNode at: lineNum) position: 0 ].
+		ifTrue: [ ^ (ArgumentNode at: lineNum) position: 0 name: name ].
 	(1 to: tempNames size) do: [:i |
 		(name == (tempNames at: i))
 			ifTrue: [ ^ (TemporaryNode at: lineNum)
-				position: i ] ].
+				position: i name: name ] ].
 	(1 to: argNames size) do: [:i |
 		(name == (argNames at: i))
-			ifTrue: [ ^ (ArgumentNode at: lineNum) position: i ] ].
+			ifTrue: [ ^ (ArgumentNode at: lineNum) position: i name: name ] ].
 	(1 to: instNames size) do: [:i |
 		(name == (instNames at: i))
-			ifTrue: [ ^ (InstNode at: lineNum) position: i ] ].
+			ifTrue: [ ^ (InstNode at: lineNum) position: i name: name ] ].
 	^ (LiteralNode at: lineNum);
 		value: (globals at: name
 			ifAbsent: [ ^ self error:
