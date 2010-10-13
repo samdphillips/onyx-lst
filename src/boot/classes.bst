@@ -47,7 +47,7 @@ RAWCLASS SmallInt   MetaSmallInt Number
 CLASS Link          Object            value next
 CLASS Node          Object            value left right
 CLASS Interval      Collection        low high step
-CLASS File          Object            fileID
+CLASS File          Object            fileID indentLevel
 CLASS Association	Magnitude	key value
 CLASS Tree		Collection	root
 COMMENT ---------- Classes having to do with parsing ------------
