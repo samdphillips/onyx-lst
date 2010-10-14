@@ -198,7 +198,7 @@ addTempName: name
 METHOD Parser
 readBody | lnum |
 	lnum <- lineNum.
-	^ (BodyNode at: lnum) statements: self readStatementList
+    ^ self bodyNodeAt: lnum statements: self readStatementList
 !
 METHOD Parser
 readStatementList   | list |
@@ -214,8 +214,7 @@ METHOD Parser
 readStatement | lnum |
 	tokenType = $^
 		ifTrue: [ lnum <- lineNum. self nextLex.
-			^ (ReturnNode at: lnum)
-				expression: self readExpression ].
+            ^ self returnNodeAt: lnum expression: self readExpression ].
 	^ self readExpression
 !
 METHOD Parser
@@ -227,8 +226,10 @@ readExpression   | node lnum |
 				ifFalse: [ self error: 'illegal assignment'].
 			lnum <- lineNum.
 			self nextLex.
-			^ (AssignNode at: lnum) target:
-				node expression: self readExpression ].
+			^ self 
+                assignNodeAt: lnum 
+                target: node 
+                expression: self readExpression ].
 	^ self readCascade: node
 !
 METHOD Parser
@@ -251,27 +252,29 @@ readTerm   | node lnum |
 		ifTrue: [ node <- self nameNode: token asSymbol.
 			self nextLex. ^ node ].
 	lnum <- lineNum.
-	^ (LiteralNode at: lnum) value: self readLiteral
+	^ self literalNodeAt: lnum value: self readLiteral
 !
 METHOD Parser
 nameNode: name
 	" make a new name node "
 	name == #super
-		ifTrue: [ ^ (ArgumentNode at: lineNum) position: 0 name: name ].
+		ifTrue: [ ^ self argumentNodeAt: lineNum position: 0 name: name ].
 	(1 to: tempNames size) do: [:i |
 		(name == (tempNames at: i))
-			ifTrue: [ ^ (TemporaryNode at: lineNum)
-				position: i name: name ] ].
+			ifTrue: [ ^ self temporaryNodeAt: lineNum
+				             position: i 
+                             name: name ] ].
 	(1 to: argNames size) do: [:i |
 		(name == (argNames at: i))
-			ifTrue: [ ^ (ArgumentNode at: lineNum) position: i name: name ] ].
+			ifTrue: [ ^ self argumentNodeAt: lineNum position: i name: name ] ].
 	(1 to: instNames size) do: [:i |
 		(name == (instNames at: i))
-			ifTrue: [ ^ (InstNode at: lineNum) position: i name: name ] ].
-	^ (LiteralNode at: lineNum);
-		value: (globals at: name
-			ifAbsent: [ ^ self error:
-				'unrecognized name: ' + name printString ])
+			ifTrue: [ ^ self instNodeAt: lineNum position: i name: name ] ].
+	^ self literalNodeAt: lineNum
+		   value: (globals at: name
+			               ifAbsent: [ ^ self error: 
+                                         'unrecognized name: ' + name printString 
+                                     ])
 !
 METHOD Parser
 readLiteral   | node |
@@ -343,7 +346,7 @@ readPrimitive  | num args lnum |
 	[ tokenType ~= $> ]
 		whileTrue: [ args add: self readTerm ].
 	self nextLex.
-	^ (PrimitiveNode at: lnum) number: num arguments: args
+	^ self primitiveNodeAt: lnum number: num arguments: args
 !
 METHOD Parser
 readBlock    | stmts saveTemps lnum |
@@ -356,8 +359,9 @@ readBlock    | stmts saveTemps lnum |
 	tempNames <- saveTemps.
 	tokenType = $]
 		ifTrue: [ self nextLex.
-			^ (BlockNode at: lnum) statements: stmts
-				temporaryLocation: saveTemps size ]
+			^ self blockNodeAt: lnum 
+                   statements: stmts
+				   temporaryLocation: saveTemps size ]
 		ifFalse: [ self error: 'unterminated block']
 !
 METHOD Parser
@@ -378,7 +382,7 @@ METHOD Parser
 readCascade: base   | node list |
 	node <- self keywordContinuation: base.
 	tokenType = $;
-		ifTrue: [ node <- (CascadeNode at: lineNum) head: node.
+		ifTrue: [ node <- self cascadeNodeAt: lineNum head: node.
 			list <- List new.
 			[ tokenType = $; ]
 				whileTrue: [ self nextLex.
@@ -399,8 +403,10 @@ keywordContinuation: base  | receiver name args lnum |
 		whileTrue: [ name <- name + token. self nextLex.
 			args add:
 				(self binaryContinuation: self readTerm) ].
-	^ (MessageNode at: lnum) receiver:
-		receiver name: name asSymbol arguments: args
+	^ self messageNodeAt: lnum 
+           receiver:  receiver 
+           name:      name asSymbol 
+           arguments: args
 !
 METHOD Parser
 binaryContinuation: base | receiver name lnum |
@@ -408,10 +414,12 @@ binaryContinuation: base | receiver name lnum |
 	[ self tokenIsBinary]
 		whileTrue: [ lnum <- lineNum.
 			name <- token asSymbol. self nextLex.
-			receiver <- (MessageNode at: lnum)
-				receiver: receiver name: name arguments:
-					(List with:
-						(self unaryContinuation: self readTerm)) ].
+			receiver <- self messageNodeAt: lnum
+				             receiver:  receiver 
+                             name:      name 
+                             arguments:
+					             (List with:
+						             (self unaryContinuation: self readTerm)) ].
 	^ receiver
 !
 METHOD Parser
@@ -419,9 +427,59 @@ unaryContinuation: base | receiver lnum |
 	receiver <- base.
 	[ self tokenIsName ]
 		whileTrue: [ lnum <- lineNum.
-			receiver <- (MessageNode at: lnum)
-				receiver: receiver name: token asSymbol
-					arguments: (List new).
+			receiver <- self messageNodeAt: lnum
+				             receiver:  receiver 
+                             name:      token asSymbol
+					         arguments: (List new).
 				self nextLex ].
 	^ receiver
+!
+METHOD Parser
+bodyNodeAt: n statements: stmts
+    ^ (BodyNode at: n) statements: stmts
+!
+METHOD Parser
+returnNodeAt: n expression: expr
+    ^ (ReturnNode at: n) expression: expr
+!
+METHOD Parser
+assignNodeAt: n target: var expression: expr
+    ^ (AssignNode at: n)
+        target: var
+        expression: expr
+!
+METHOD Parser
+literalNodeAt: n value: val
+    ^ (LiteralNode at: n) value: val
+!
+METHOD Parser
+argumentNodeAt: n position: i name: name
+    ^ (ArgumentNode at: n) position: i name: name
+!
+METHOD Parser
+temporaryNodeAt: n position: i name: name
+    ^ (TemporaryNode at: n) position: i name: name
+!
+METHOD Parser
+instNodeAt: n position: i name: name
+    ^ (InstNode at: n) position: i name: name
+!
+METHOD Parser
+primitiveNodeAt: n number: val arguments: args
+    ^ (PrimitiveNode at: n) number: val arguments: args
+!
+METHOD Parser
+blockNodeAt: n statements: stmts temporaryLocation: i
+    ^ (BlockNode at: n) statements: stmts temporaryLocation: i
+!
+METHOD Parser
+cascadeNodeAt: n head: h
+    ^ (CascadeNode at: n) head: h
+!
+METHOD Parser
+messageNodeAt: n receiver: r name: msg arguments: args
+    ^ (MessageNode at: n)
+        receiver:  r
+        name:      msg
+        arguments: args
 !
