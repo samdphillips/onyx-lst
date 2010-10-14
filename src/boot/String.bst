@@ -169,3 +169,19 @@ indexOf: val | c s |
 	].
 	^ nil
 !
+METHOD String
+endsWith: aString
+    | i j |
+    self size < aString size ifTrue: [ ^ false ]
+    i <- self size - aString size + 1.
+    j <- 1.
+
+    [ i > self size ] whileFalse: [
+        (self at: i) = (aString at: j)
+            ifFalse: [ ^ false ].
+        i <- i + 1.
+        j <- j + 1.
+    ].
+
+    ^ true
+!
