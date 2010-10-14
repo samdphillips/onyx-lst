@@ -232,11 +232,6 @@ struct object *
 primitive(int primitiveNumber, struct object *args, int *failed)
 {
 	struct object *returnedValue = nilObject;
-	int i, j;
-	FILE *fp;
-	char *p;
-	struct byteObject *stringReturn;
-	char nameBuffer[80], modeBuffer[80];
 
 	*failed = 0;
 	switch(primitiveNumber) {
