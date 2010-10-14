@@ -21,10 +21,6 @@ tab
 	^ Char tab asString
 !
 METHOD String
-edit
-	<105 self>
-!
-METHOD String
 break: separators  | words word |
 	" break string into words, using separators "
 	word <- ''.
